@@ -33,12 +33,12 @@ export class MembersService {
           return of(response);
       }
 
-      let params = this.getPaginationHeaders(userParams.pageNumber, userParams.pageSize, userParams.minAge, userParams.maxAge, userParams.gender, userParams.orderBy);
+      let params = this.getPaginationHeaders(userParams.pageNumber, userParams.pageSize);
 
-      params.append('minAge', userParams.minAge.toString());
-      params.append('maxAge', userParams.maxAge.toString());
-      params.append('gender', userParams.gender);
-      params.append('orderBy', userParams.orderBy);
+      params = params.append('minAge', userParams.minAge.toString());
+      params = params.append('maxAge', userParams.maxAge.toString());
+      params = params.append('gender', userParams.gender);
+      params = params.append('orderBy', userParams.orderBy);
 
       return this.getPaginatedResults<Member[]>(this.baseUrl + 'users', params)
             .pipe(map(response => {
@@ -62,15 +62,11 @@ export class MembersService {
             );
     }
 
-  private getPaginationHeaders(pageNumber: number, pageSize: number, minAge: number, maxAge: number, gender: string, orderBy: string) {
+  private getPaginationHeaders(pageNumber: number, pageSize: number) {
     let params = new HttpParams();
 
     params = params.append('pageNumber', pageNumber.toString());
     params = params.append('pageSize', pageSize.toString());
-    params = params.append('minAge', minAge.toString());
-    params = params.append('maxAge', maxAge.toString());
-    params = params.append('gender', gender.toString());
-    params = params.append('orderBy', orderBy);
 
     return params;
   }
@@ -114,5 +110,15 @@ export class MembersService {
   resetUserParams() {
       this.userParams = new UserParams(this.user);
       return this.userParams;
+  }
+
+  addLike(username: string) {
+      return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+
+  getLikes(predicate: string, pageNumber: number, pageSize: number) {
+        let params = this.getPaginationHeaders(pageNumber, pageSize);
+        params = params.append('predicate', predicate);
+        return this.getPaginatedResults<Partial<Member[]>>(this.baseUrl + 'likes', params);
   }
 }
